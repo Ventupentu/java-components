@@ -32,7 +32,7 @@ public class DeviceDataManagerNoCommsTest
 {
 	// static
 	
-	private static final Logger _Logger =
+	public static final Logger _Logger =
 		Logger.getLogger(DeviceDataManagerNoCommsTest.class.getName());
 	
 
