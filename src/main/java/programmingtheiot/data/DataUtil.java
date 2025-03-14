@@ -11,9 +11,14 @@ package programmingtheiot.data;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.logging.Logger;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.ArrayList;
 
 import com.google.gson.Gson;
+
+import programmingtheiot.common.ConfigConst;
 
 /**
  * Shell representation of class for student implementation.
@@ -23,6 +28,8 @@ public class DataUtil
 {
 	// static
 	
+	private static final Logger _Logger = Logger.getLogger(DataUtil.class.getName());
+	// static instance
 	private static final DataUtil _Instance = new DataUtil();
 
 	/**
@@ -36,7 +43,7 @@ public class DataUtil
 	}
 	
 	
-	// private var's
+	// private variables
 	
 	
 	// constructors
@@ -53,19 +60,40 @@ public class DataUtil
 	
 	// public methods
 	
-	public String actuatorDataToJson(ActuatorData actuatorData)
+	public String actuatorDataToJson(ActuatorData data)
 	{
-		return null;
+		String jsonData = null;
+
+		if (data != null) {
+			Gson gson = new Gson();
+			jsonData = gson.toJson(data);
+		}
+
+		return jsonData;
 	}
 	
 	public String sensorDataToJson(SensorData sensorData)
 	{
-		return null;
+		String jsonData = null;
+
+		if (sensorData != null) {
+			Gson gson = new Gson();
+			jsonData = gson.toJson(sensorData);
+		}
+
+		return jsonData;
 	}
 	
 	public String systemPerformanceDataToJson(SystemPerformanceData sysPerfData)
 	{
-		return null;
+		String jsonData = null;
+
+		if (sysPerfData != null) {
+			Gson gson = new Gson();
+			jsonData = gson.toJson(sysPerfData);
+		}
+
+		return jsonData;
 	}
 	
 	public String systemStateDataToJson(SystemStateData sysStateData)
@@ -75,17 +103,38 @@ public class DataUtil
 	
 	public ActuatorData jsonToActuatorData(String jsonData)
 	{
-		return null;
+		ActuatorData data = null;
+
+		if (jsonData != null && jsonData.trim().length() > 0) {
+			Gson gson = new Gson();
+			data = gson.fromJson(jsonData, ActuatorData.class);
+		}
+
+		return data;
 	}
 	
 	public SensorData jsonToSensorData(String jsonData)
 	{
-		return null;
+		SensorData data = null;
+
+		if (jsonData != null && jsonData.trim().length() > 0) {
+			Gson gson = new Gson();
+			data = gson.fromJson(jsonData, SensorData.class);
+		}
+
+		return data;
 	}
 	
 	public SystemPerformanceData jsonToSystemPerformanceData(String jsonData)
 	{
-		return null;
+		SystemPerformanceData data = null;
+
+		if (jsonData != null && jsonData.trim().length() > 0) {
+			Gson gson = new Gson();
+			data = gson.fromJson(jsonData, SystemPerformanceData.class);
+		}
+
+		return data;
 	}
 	
 	public SystemStateData jsonToSystemStateData(String jsonData)
