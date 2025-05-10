@@ -24,6 +24,11 @@ import programmingtheiot.common.ConfigConst;
 import programmingtheiot.common.IDataMessageListener;
 import programmingtheiot.common.ResourceNameEnum;
 
+import programmingtheiot.gda.connection.handlers.GetActuatorCommandResourceHandler;
+import programmingtheiot.gda.connection.handlers.UpdateTelemetryResourceHandler;
+import programmingtheiot.gda.connection.handlers.UpdateSystemPerformanceResourceHandler;
+
+
 /**
  * Shell representation of class for student implementation.
  * 
@@ -35,10 +40,7 @@ public class CoapServerGateway
 	private static final Logger _Logger =
 		Logger.getLogger(CoapServerGateway.class.getName());
 	
-	static {
-		CoapConfig.register();
-		UdpConfig.register();
-	}
+
 	// params
 	
 	private CoapServer coapServer = null;

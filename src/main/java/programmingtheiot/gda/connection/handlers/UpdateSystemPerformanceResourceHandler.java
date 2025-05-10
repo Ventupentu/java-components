@@ -14,35 +14,22 @@ import org.eclipse.californium.core.server.resources.CoapExchange;
 
 import programmingtheiot.common.ConfigConst;
 import programmingtheiot.common.ConfigUtil;
+import programmingtheiot.common.IDataMessageListener;
+import programmingtheiot.common.ResourceNameEnum;
 
+public class UpdateSystemPerformanceResourceHandler extends CoapResource {
 
-public class UpdateSystemPerformanceResourceHandler extends GenericCoapResourceHandler
-{
-    // static
-    
-    private static final Logger _Logger =
-        Logger.getLogger(UpdateSystemPerformanceResourceHandler.class.getName());
-    
-    // params
-    
+	private static final Logger _Logger = Logger.getLogger(UpdateSystemPerformanceResourceHandler.class.getName());
+
     private IDataMessageListener dataMsgListener = null;
-    
-    
-    // constructors
-    
-    /**
-     * Constructor.
-     * 
-     * @param resource Basically, the path (or topic)
-     */
-    public UpdateSystemPerformanceResourceHandler(ResourceNameEnum resource)
-    {
-        super(resourceName);
-    }
 
+    public UpdateSystemPerformanceResourceHandler(String resourceName)
+    { 
+	super(resourceName);
+    }
     public void setDataMessageListener(IDataMessageListener listener)
     {
-       if (listener != null) {
+        if (listener != null) {
             this.dataMsgListener = listener;
         }
     }
@@ -52,42 +39,59 @@ public class UpdateSystemPerformanceResourceHandler extends GenericCoapResourceH
     {
         ResponseCode code = ResponseCode.NOT_ACCEPTABLE;
 
-        context.accept();
+	context.accept();
 
-        if (this.dataMsgListener != null) {
-            try {
-                String jsonData = new String(context.getRequestPayload());
+	if (this.dataMsgListener != null) {
+		try {
+			String jsonData = new String(context.getRequestPayload());
 
-                SystemPerformanceData sysPerfData =
-                    DataUtil.getInstance().jsonToSystemPerformanceData(jsonData);
+			SystemPerformanceData sysPerfData =
+				DataUtil.getInstance().jsonToSystemPerformanceData(jsonData);
 
-                // TODO: Choose the following (but keep it idempotent!)
-                //   1) Check MID to see if it’s repeated for some reason
-                //      - optional, as the underlying lib should handle this
-                //   2) Cache the previous update – is the PAYLOAD repeated?
-                //   2) Delegate the data check to this.dataMsgListener
+			// TODO: Choose the following (but keep it idempotent!)
+			//   1) Check MID to see if it’s repeated for some reason
+			//      - optional, as the underlying lib should handle this
+			//   2) Cache the previous update – is the PAYLOAD repeated?
+			//   2) Delegate the data check to this.dataMsgListener
 
-                this.dataMsgListener.handleSystemPerformanceMessage(
-                    ResourceNameEnum.CDA_SYSTEM_PERF_MSG_RESOURCE, sysPerfData);
+			this.dataMsgListener.handleSystemPerformanceMessage(
+				ResourceNameEnum.CDA_SYSTEM_PERF_MSG_RESOURCE, sysPerfData);
 
-                code = ResponseCode.CHANGED;
-            } catch (Exception e) {
-                _Logger.warning(
-                    "Failed to handle PUT request. Message: " +
-                        e.getMessage());
+			code = ResponseCode.CHANGED;
+		} catch (Exception e) {
+			_Logger.warning(
+				"Failed to handle PUT request. Message: " +
+					e.getMessage());
 
-                code = ResponseCode.BAD_REQUEST;
-            }
-        } else {
-            _Logger.info(
-                "No callback listener for request. Ignoring PUT.");
+			code = ResponseCode.BAD_REQUEST;
+		}
+	} else {
+		_Logger.info(
+			"No callback listener for request. Ignoring PUT.");
 
-            code = ResponseCode.CONTINUE;
-        }
+		code = ResponseCode.CONTINUE;
+	}
 
-        String msg =
-            "Update system perf data request handled: " + super.getName();
+	String msg =
+		"Update system perf data request handled: " + super.getName();
 
-        context.respond(code, msg);
+	context.respond(code, msg);
     }
+
+    @Override
+	public void handleDELETE(CoapExchange context)
+	{
+	}
+	
+	@Override
+	public void handleGET(CoapExchange context)
+	{
+	}
+	
+	@Override
+	public void handlePOST(CoapExchange context)
+	{
+	}
+
+    
 }
