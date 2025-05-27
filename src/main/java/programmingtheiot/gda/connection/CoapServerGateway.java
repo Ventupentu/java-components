@@ -8,26 +8,26 @@
 
 package programmingtheiot.gda.connection;
 
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.eclipse.californium.core.CoapResource;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.List;
+import java.util.Queue;
 import org.eclipse.californium.core.CoapServer;
-import org.eclipse.californium.core.network.Endpoint;
-import org.eclipse.californium.core.network.interceptors.MessageTracer;
+import org.eclipse.californium.core.config.CoapConfig;
 import org.eclipse.californium.core.server.resources.Resource;
-
+import org.eclipse.californium.elements.config.UdpConfig;
+import org.eclipse.californium.core.CoapResource;
 import programmingtheiot.common.ConfigConst;
 import programmingtheiot.common.IDataMessageListener;
 import programmingtheiot.common.ResourceNameEnum;
-
 import programmingtheiot.gda.connection.handlers.GetActuatorCommandResourceHandler;
+import programmingtheiot.gda.connection.handlers.GenericCoapResourceHandler;
 import programmingtheiot.gda.connection.handlers.UpdateTelemetryResourceHandler;
+import org.eclipse.californium.core.network.Endpoint;
+import org.eclipse.californium.core.network.interceptors.MessageTracer;
 import programmingtheiot.gda.connection.handlers.UpdateSystemPerformanceResourceHandler;
-
+ 
 
 /**
  * Shell representation of class for student implementation.
