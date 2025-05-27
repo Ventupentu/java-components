@@ -36,6 +36,11 @@ import programmingtheiot.gda.connection.handlers.UpdateSystemPerformanceResource
 public class CoapServerGateway
 {
 	// static
+
+	 static {
+	 CoapConfig.register();
+	 UdpConfig.register();
+	 }
 	
 	private static final Logger _Logger =
 		Logger.getLogger(CoapServerGateway.class.getName());
