@@ -127,6 +127,7 @@ public class ConfigConst
 	public static final int    HUMIDITY_SENSOR_TYPE      = 1010;
 	public static final int    PRESSURE_SENSOR_TYPE      = 1012;
 	public static final int    TEMP_SENSOR_TYPE          = 1013;
+	public static final int    VIBRATION_SENSOR_TYPE = 1020;
 	
 	public static final int    DISPLAY_DEVICE_TYPE       = 2000;
 	public static final int    LED_ACTUATOR_TYPE         = 2001;
@@ -151,6 +152,7 @@ public class ConfigConst
 
 	// this is included here for testing purposes only
 	public static final String TEMP_SENSOR_NAME = "TempSensor";
+	public static final String VIBRATION_SENSOR_NAME = "VibrationSensor";
 	
 	public static final String CPU_UTIL_NAME  = "CpuUtil";
 	public static final String DISK_UTIL_NAME = "DiskUtil";
