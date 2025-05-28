@@ -8,17 +8,9 @@
 
 package programmingtheiot.data;
 
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.logging.Logger;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.ArrayList;
 
 import com.google.gson.Gson;
-
-import programmingtheiot.common.ConfigConst;
 
 /**
  * Shell representation of class for student implementation.
@@ -42,16 +34,7 @@ public class DataUtil
 		return _Instance;
 	}
 	
-	
-	// private variables
-	
-	
-	// constructors
-	
-	/**
-	 * Default (private).
-	 * 
-	 */
+	// private var's
 	private DataUtil()
 	{
 		super();
