@@ -7,9 +7,8 @@
  */ 
 
 package programmingtheiot.gda.connection;
-import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
@@ -44,11 +43,6 @@ public class CloudClientConnector implements ICloudClient, IConnectionListener
 	
 
 	// constructors
-	
-	/**
-	 * Default.
-	 * 
-	 */
 	public CloudClientConnector()
 	{
 		ConfigUtil configUtil = ConfigUtil.getInstance();
@@ -58,8 +52,6 @@ public class CloudClientConnector implements ICloudClient, IConnectionListener
 			ConfigConst.BASE_TOPIC_KEY
 		);
 
-		// Depending on the cloud service, the topic names may or may not begin with a "/", 
-		// so this code should be updated according to the cloud service provider's topic naming conventions
 		if (topicPrefix == null) {
 			topicPrefix = "/";
 		} else {
@@ -72,7 +64,6 @@ public class CloudClientConnector implements ICloudClient, IConnectionListener
 	
 	
 	// public methods
-	
 	@Override
 	public boolean connectClient()
 	{
@@ -100,15 +91,10 @@ public class CloudClientConnector implements ICloudClient, IConnectionListener
 		_Logger.info("Handling CSP subscriptions and device topic provisioninig...");
 
 		LedEnablementMessageListener ledListener = new LedEnablementMessageListener(this.dataMsgListener);
-
-		// topic may not exist yet, so create a 'response' actuation event with invalid value -
-		// this will create the relevant topic if it doesn't yet exist, which ensures
-		// the message listener (if coded correctly) will log a message but ignore the
-		// actuation command and NOT pass it onto the IDataMessageListener instance
 		ActuatorData ad = new ActuatorData();
 		ad.setAsResponse();
 		ad.setName(ConfigConst.LED_ACTUATOR_NAME);
-		ad.setValue((float) -1.0); // NOTE: this just needs to be an invalid actuation value
+		ad.setValue((float) -1.0);
 
 		String ledTopic = createTopicName(ledListener.getResource().getDeviceName(), ad.getName());
 		String adJson = DataUtil.getInstance().actuatorDataToJson(ad);
@@ -139,7 +125,6 @@ public class CloudClientConnector implements ICloudClient, IConnectionListener
 	public boolean sendEdgeDataToCloud(ResourceNameEnum resource, SensorData data)
 	{
 		if (resource != null && data != null) {
-			// Crear un objeto JSON en el formato que espera Ubidots
 			StringBuilder jsonBuilder = new StringBuilder();
 			jsonBuilder.append("{\"value\":");
 			jsonBuilder.append(data.getValue());
@@ -163,7 +148,6 @@ public class CloudClientConnector implements ICloudClient, IConnectionListener
 	public boolean sendEdgeDataToCloud(ResourceNameEnum resource, SystemPerformanceData data)
 	{
 		if (resource != null && data != null) {
-			// Enviar CPU utilization
 			StringBuilder cpuJsonBuilder = new StringBuilder();
 			cpuJsonBuilder.append("{\"value\":");
 			cpuJsonBuilder.append(data.getCpuUtilization());
@@ -175,7 +159,6 @@ public class CloudClientConnector implements ICloudClient, IConnectionListener
 				_Logger.warning("Failed to send CPU utilization data to cloud service.");
 			}
 			
-			// Enviar Memory utilization
 			StringBuilder memJsonBuilder = new StringBuilder();
 			memJsonBuilder.append("{\"value\":");
 			memJsonBuilder.append(data.getMemoryUtilization());
@@ -201,17 +184,6 @@ public class CloudClientConnector implements ICloudClient, IConnectionListener
 
 	if (this.mqttClient != null && this.mqttClient.isConnected()) {
 		topicName = createTopicName(resource);
-
-		// NOTE: This is a generic subscribe call - if you use this approach,
-		// you will need to update this.mqttClient.messageReceived() to
-		//   (1) identify the message source (e.g., CDA or Cloud),
-		//   (2) determine the message type (e.g., actuator command), and
-		//   (3) convert the payload into a data container (e.g., ActuatorData)
-		//
-		// Once you determine the message source and type, and convert the
-		// payload to its appropriate data container, you can then determine
-		// where to route the message (e.g., send to the IDataMessageListener
-		// instance (which will be DeviceDataManager).
 		this.mqttClient.subscribeToTopic(topicName, this.qosLevel);
 
 			success = true;
@@ -281,27 +253,6 @@ public class CloudClientConnector implements ICloudClient, IConnectionListener
 	
 			this.mqttClient.publishMessage(topicName, payload.getBytes(), this.qosLevel);
 	
-			// NOTE: Depending on the cloud service, it may be necessary to 'throttle'
-			// the published messages by limiting to, for example, no more than one
-			// per second. While there are a variety of ways to accomplish this,
-			// briefly described below are two techniques that may be worth considering
-			// if this is a limitation you need to handle in your code:
-			//
-			// 1) Add an artificial delay after the call to this.mqttClient.publishMessage().
-			//    This can be implemented by sleeping for up to a second after the call.
-			//    However, it can also adversely affect the program flow, as this sleep
-			//    will block DeviceDataManager, which invoked one of the sendEdgeDataToCloud()
-			//    methods that led to this call, and may negatively impact your application.
-			//
-			// 2) Implement a Queue which can store both the payload and target topic, and
-			//    add a scheduler to pop the oldest message off the Queue (when not empty)
-			//    at a regular interval (for example, once per second), and then invoke the
-			//    this.mqttClient.publishMessage() method.
-			//
-			// Both approaches require thoughtful design considerations of course, and your
-			// requirements may demand an alternative approach (or none at all if throttling
-			// isn't a concern). Design and implementation details are left up to you.
-	
 			return true;
 		} catch (Exception e) {
 			_Logger.warning("Failed to publish message to CSP: " + topicName);
@@ -341,8 +292,6 @@ public class CloudClientConnector implements ICloudClient, IConnectionListener
 			ActuatorData actuatorData =
 				DataUtil.getInstance().jsonToActuatorData(jsonData);
 
-			// TODO: This will have to match the CDA's location ID, depending on the
-			// validation logic implemented within the CDA's ActuatorAdapterManager
 			actuatorData.setLocationID(ConfigConst.CONSTRAINED_DEVICE);
 			actuatorData.setTypeID(this.typeID);
 			actuatorData.setName(this.itemName);
@@ -364,53 +313,12 @@ public class CloudClientConnector implements ICloudClient, IConnectionListener
 					return;
 			}
 
-			// There are two ways to handle passing of ActuatorData messages
-			// from this method to IDataMessageListener (DeviceDataManager):
-			//
-			// Option 1: Pass the JSON payload (which will likely be ActuatorData).
-			// Option 2: Pass the ActuatorData instance directly.
-			//
-			// The latest version of java-components contains a shell definition
-			// for Option 2 (using Actuator Data via handleActuatorCommandRequest()).
-			// If you do not have this method defined in IDataMessageListener and
-			// DeviceDataManager, you can add it in, or just use Option 1.
-			//
-			// Choose which you'd like to use and comment out the other,
-			// but DO NOT USE BOTH!
-
-			//
-			// Option 1: using JSON
-			//
 			if (this.dataMsgListener != null) {
-				// NOTE: This conversion is useful for validation purposes and
-				// to support the next line of code. You can bypass this if
-				// your IDataMessageListener and DeviceDataManager implement:
-				// handleActuatorCommandRequest(ActuatorData).
-
 				jsonData = DataUtil.getInstance().actuatorDataToJson(actuatorData);
-
-				// NOTE: The implementation of IDataMessageListener, which will be
-				// DeviceDataManager, will need to parse the JSON data to handle
-				// the actuator command via the handleIncomingMessage() method.
-				// The implementation of handleIncomingMessage() will then
-				// convert the data back into an ActuatorData instance and
-				// send it to the CDA via CoAP or MQTT.
-				//
-				// It may seem odd to convert the payload JSON to ActuatorData
-				// and then back again to JSON, only to be converted once again
-				// to an ActuatorData instance. The purpose of this was originally
-				// to support multiple payload types.
 				this.dataMsgListener.handleIncomingMessage(
 					ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE, jsonData);
 			}
 
-			//
-			// Option 1: using ActuatorData
-			//
-			//if (this.dataMsgListener != null) {
-			//	this.dataMsgListener.handleActuatorCommandRequest(
-			//		ResourceNameEnum.CDA_ACTUATOR_CMD_RESOURCE, actuatorData);
-			//}
 		} catch (Exception e) {
 			_Logger.warning("Failed to convert message payload to ActuatorData.");
 		}
